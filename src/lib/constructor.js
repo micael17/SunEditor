@@ -21,7 +21,7 @@ import util from './util';
 const _Constructor = {
     init: function (element, options, lang, _plugins) {
         if (typeof options !== 'object') options = {};
-    
+
         /** user options */
         options.lang = lang;
         // toolbar
@@ -48,6 +48,7 @@ const _Constructor = {
         options.imageWidth = options.imageWidth || 'auto';
         options.imageFileInput = options.imageFileInput === undefined ? true : options.imageFileInput;
         options.imageUrlInput = (options.imageUrlInput === undefined || !options.imageFileInput) ? true : options.imageUrlInput;
+        options.imageUploadHeader = options.imageUploadHeader || null;
         options.imageUploadUrl = options.imageUploadUrl || null;
         // video
         options.videoResizing = options.videoResizing === undefined ? true : options.videoResizing;
@@ -65,20 +66,20 @@ const _Constructor = {
             ['fullScreen', 'showBlocks', 'codeView'],
             ['preview', 'print']
         ];
-    
+
         const doc = document;
-    
+
         /** suneditor div */
         const top_div = doc.createElement('DIV');
         top_div.className = 'sun-editor';
         if (element.id) top_div.id = 'suneditor_' + element.id;
         top_div.style.width = options.width;
         top_div.style.display = options.display;
-    
+
         /** relative div */
         const relative = doc.createElement('DIV');
         relative.className = 'sun-editor-container';
-    
+
         /** toolbar */
         const tool_bar = this._createToolBar(doc, options.buttonList, _plugins, lang);
 
@@ -96,11 +97,11 @@ const _Constructor = {
         /** sticky toolbar dummy */
         const sticky_dummy = doc.createElement('DIV');
         sticky_dummy.className = 'sun-editor-sticky-dummy';
-    
+
         /** inner editor div */
         const editor_div = doc.createElement('DIV');
         editor_div.className = 'sun-editor-id-editorArea';
-    
+
         /** wysiwyg div */
         const wysiwyg_div = doc.createElement('DIV');
         wysiwyg_div.setAttribute('contenteditable', true);
@@ -111,7 +112,7 @@ const _Constructor = {
         wysiwyg_div.style.height = options.height;
         wysiwyg_div.style.minHeight = options.minHeight;
         wysiwyg_div.style.maxHeight = options.maxHeight;
-    
+
         /** textarea for code view */
         const textarea = doc.createElement('TEXTAREA');
         textarea.className = 'input_editor sun-editor-id-code';
@@ -119,27 +120,27 @@ const _Constructor = {
         textarea.style.height = options.height;
         textarea.style.minHeight = options.minHeight;
         textarea.style.maxHeight = options.maxHeight;
-    
+
         /** resize bar */
         let resizing_bar = null;
         if (options.resizingBar) {
             resizing_bar = doc.createElement('DIV');
             resizing_bar.className = 'sun-editor-id-resizingBar sun-editor-common';
         }
-    
+
         /** navigation */
         const navigation = doc.createElement('SPAN');
         navigation.className = 'sun-editor-id-navigation sun-editor-common';
-    
+
         /** loading box */
         const loading_box = doc.createElement('DIV');
         loading_box.className = 'sun-editor-id-loading sun-editor-common';
         loading_box.innerHTML = '<div class="loading-effect"></div>';
-    
+
         /** resize operation background */
         const resize_back = doc.createElement('DIV');
         resize_back.className = 'sun-editor-id-resize-background';
-    
+
         /** append html */
         editor_div.appendChild(wysiwyg_div);
         editor_div.appendChild(textarea);
@@ -153,9 +154,9 @@ const _Constructor = {
             resizing_bar.appendChild(navigation);
             relative.appendChild(resizing_bar);
         }
-        
+
         top_div.appendChild(relative);
-    
+
         return {
             constructed: {
                 _top: top_div,

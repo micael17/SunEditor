@@ -16,7 +16,7 @@ export default {
     name: 'image',
     add: function (core) {
         core.addModule([dialog, resizing, notice]);
-        
+
         const context = core.context;
         context.image = {
             _linkElement: null,
@@ -55,7 +55,7 @@ export default {
         /** add event listeners */
         context.image.modal.getElementsByClassName('sun-editor-tab-button')[0].addEventListener('click', this.openTab.bind(core));
         context.image.modal.getElementsByClassName('btn-primary')[0].addEventListener('click', this.submit.bind(core));
-        
+
         context.image.imageX = {};
         context.image.imageY = {};
         if (context.option.imageResizing) {
@@ -63,7 +63,7 @@ export default {
             context.image.imageX = image_dialog.getElementsByClassName('sun-editor-id-image-x')[0];
             context.image.imageY = image_dialog.getElementsByClassName('sun-editor-id-image-y')[0];
             context.image.imageX.value = context.option.imageWidth;
-            
+
             context.image.imageX.addEventListener('change', this.setInputSize.bind(core, 'x'));
             context.image.imageY.addEventListener('change', this.setInputSize.bind(core, 'y'));
             image_dialog.getElementsByClassName('sun-editor-id-image-revert-button')[0].addEventListener('click', this.sizeRevert.bind(core));
@@ -97,38 +97,38 @@ export default {
             '   <div class="sun-editor-id-tab-content sun-editor-id-tab-content-image">' +
             '       <div class="modal-body">';
 
-            if (option.imageFileInput) {
-                html += '' +
-                    '   <div class="form-group">' +
-                    '       <label>' + lang.dialogBox.imageBox.file + '</label>' +
-                    '       <input class="form-control sun-editor-id-image-file" type="file" accept="image/*" multiple="multiple" />' +
-                    '   </div>' ;
-            }
-
-            if (option.imageUrlInput) {
-                html += '' +
-                    '   <div class="form-group">' +
-                    '       <label>' + lang.dialogBox.imageBox.url + '</label>' +
-                    '       <input class="form-control sun-editor-id-image-url" type="text" />' +
-                    '   </div>';
-            }
-
+        if (option.imageFileInput) {
             html += '' +
+                '   <div class="form-group">' +
+                '       <label>' + lang.dialogBox.imageBox.file + '</label>' +
+                '       <input class="form-control sun-editor-id-image-file" type="file" accept="image/*" multiple="multiple" />' +
+                '   </div>' ;
+        }
+
+        if (option.imageUrlInput) {
+            html += '' +
+                '   <div class="form-group">' +
+                '       <label>' + lang.dialogBox.imageBox.url + '</label>' +
+                '       <input class="form-control sun-editor-id-image-url" type="text" />' +
+                '   </div>';
+        }
+
+        html += '' +
             '           <div class="form-group">' +
             '               <label>' + lang.dialogBox.imageBox.altText + '</label><input class="form-control sun-editor-id-image-alt" type="text" />' +
             '           </div>';
 
-            if (option.imageResizing) {
-                html += '' +
+        if (option.imageResizing) {
+            html += '' +
                 '       <div class="form-group">' +
                 '           <div class="size-text"><label class="size-w">' + lang.dialogBox.width + '</label><label class="size-x">&nbsp;</label><label class="size-h">' + lang.dialogBox.height + '</label></div>' +
                 '           <input class="form-size-control sun-editor-id-image-x" type="number" min="1" ' + (option.imageWidth === 'auto' ? 'disabled' : '') + ' /><label class="size-x">x</label><input class="form-size-control sun-editor-id-image-y" type="number" min="1" disabled />' +
                 '           <label><input type="checkbox" class="suneditor-id-image-check-proportion" style="margin-left: 20px;" checked disabled/>&nbsp;' + lang.dialogBox.proportion + '</label>' +
                 '           <button type="button" title="' + lang.dialogBox.revertButton + '" class="btn_editor sun-editor-id-image-revert-button" style="float: right;"><div class="icon-revert"></div></button>' +
                 '       </div>' ;
-            }
+        }
 
-            html += '' +
+        html += '' +
             '           <div class="form-group-footer">' +
             '               <label><input type="checkbox" class="suneditor-id-image-check-caption" />&nbsp;' + lang.dialogBox.caption + '</label>' +
             '           </div>' +
@@ -201,6 +201,7 @@ export default {
         const submitAction = function (files) {
             if (files.length > 0) {
                 const imageUploadUrl = this.context.option.imageUploadUrl;
+                const imageUploadHeader = this.context.option.imageUploadHeader;
                 const filesLen = this.context.dialog.updateModal ? 1 : files.length;
 
                 if (typeof imageUploadUrl === 'string' && imageUploadUrl.length > 0) {
@@ -213,6 +214,11 @@ export default {
                     this.context.image._xmlHttp = util.getXMLHttpRequest();
                     this.context.image._xmlHttp.onreadystatechange = this.plugins.image.callBack_imgUpload.bind(this, this.context.image._linkValue, this.context.image.imgLinkNewWindowCheck.checked, this.context.image.imageX.value + 'px', this.context.image._align, this.context.dialog.updateModal, this.context.image._element);
                     this.context.image._xmlHttp.open('post', imageUploadUrl, true);
+                    if(typeof imageUploadHeader === 'object' && Object.keys(imageUploadHeader).length > 0){
+                        for(let key in imageUploadHeader){
+                            this.context.image._xmlHttp.setRequestHeader(key, imageUploadHeader[key]);
+                        }
+                    }
                     this.context.image._xmlHttp.send(formData);
                 }
                 else {
@@ -234,7 +240,7 @@ export default {
 
     setup_reader: function (file, imgLinkValue, newWindowCheck, width, align, index, filesLen) {
         const reader = new FileReader();
-        
+
         if (this.context.dialog.updateModal) {
             this.context.image._element.setAttribute('data-file-name', file.name);
             this.context.image._element.setAttribute('data-file-size', file.size);
@@ -258,7 +264,6 @@ export default {
         if (this.context.image._xmlHttp.readyState === 4) {
             if (this.context.image._xmlHttp.status === 200) {
                 const response = JSON.parse(this.context.image._xmlHttp.responseText);
-
                 if (response.errorMessage) {
                     this.closeLoading();
                     if (this._imageUploadError(response.errorMessage, response.result)) {
@@ -338,7 +343,7 @@ export default {
             if (this.context.dialog.updateModal) {
                 this.plugins.image.update_image.call(this);
             }
-            
+
             if (this.context.image.imgInputFile && this.context.image.imgInputFile.files.length > 0) {
                 this.plugins.image.onRender_imgInput.call(this);
             } else if (this.context.image.imgUrlFile && this.context.image.imgUrlFile.value.trim().length > 0) {
@@ -432,7 +437,7 @@ export default {
         } else {
             cover.style.margin = '0';
         }
-        
+
         util.removeClass(container, contextImage._floatClassRegExp);
         util.addClass(container, 'float-' + align);
 
@@ -468,7 +473,7 @@ export default {
             isNewContainer = true;
             container = this.plugins.resizing.set_container.call(this, cover, 'sun-editor-id-image-container');
         }
-        
+
         if (isNewContainer) {
             container.innerHTML = '';
             container.appendChild(cover);
@@ -530,7 +535,7 @@ export default {
         if (isNewContainer) {
             const existElement = util.getFormatElement(contextImage._element);
             existElement.parentNode.insertBefore(container, existElement);
-            util.removeItem(contextImage._element);
+            util.removeItem(existElement);
         }
 
         // transform
@@ -599,7 +604,7 @@ export default {
         contextImage._element.style.width = w + 'px';
         contextImage._element.style.height = h + 'px';
     },
-    
+
     setAutoSize: function () {
         const contextImage = this.context.image;
 
@@ -631,7 +636,7 @@ export default {
 
     cancelPercentAttr: function () {
         const contextImage = this.context.image;
-        
+
         contextImage._element.style.maxWidth = 'none';
         contextImage._cover.style.width = '';
         contextImage._cover.style.height = '';
@@ -656,7 +661,7 @@ export default {
         const imageContainer = util.getParentElement(imageEl, '.sun-editor-id-image-container') || imageEl;
 
         const dataIndex = imageEl.getAttribute('data-index');
-        
+
         util.removeItem(imageContainer);
         this.plugins.image.init.call(this);
 
